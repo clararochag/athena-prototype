@@ -44,6 +44,13 @@ function icon(name, w) {
   IC.shield = `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 5v6c0 5.25 3.4 9.7 8 11 4.6-1.3 8-5.75 8-11V5l-8-3z" fill="url(#goldgrad)" stroke="#F0C968" stroke-width="1.2"/><path d="M12 7.5l3 3.5-3 6-3-6 3-3.5z" fill="#231A06"/><defs><linearGradient id="goldgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0C968"/><stop offset="1" stop-color="#B37F1E"/></linearGradient></defs></svg>`;
   IC.table = wrap(`<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10M15 10v10"/>`);
   IC.info = wrap(`<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>`);
+  IC.mail = wrap(`<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/>`);
+  IC.lock = wrap(`<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`);
+  IC.user = wrap(`<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>`);
+  IC.circle = wrap(`<circle cx="12" cy="12" r="9"/>`);
+  IC.eye = wrap(`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`);
+  IC.eyeOff = wrap(`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/>`);
+  IC.home = wrap(`<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>`);
 })();
 
 // ---------- estado de dados ----------
@@ -171,7 +178,8 @@ function renderShell() {
       <span class="brand-mark">${icon("shield", 26)}</span>
       <span class="brand-name">ATH<em>E</em>NA</span>
     </div>
-    <button class="proj-chip" id="projChip">${esc(ATH.project.name)} ${icon("chev", 13)}</button>
+    <button class="proj-chip" id="projChip" title="Trocar projeto (US24)"><span id="chipName">${esc(ATH.project ? ATH.project.name : "")}</span> ${icon("chev", 13)}</button>
+    <button class="iconbtn" id="homeBtn" title="Voltar aos workspaces e projetos">${icon("home", 16)}</button>
     <nav class="tabs" id="mainTabs">
       <button class="tab" data-view="visao">Visão geral</button>
       <button class="tab" data-view="requisitos">Requisitos</button>
@@ -180,7 +188,7 @@ function renderShell() {
     <div class="topbar-right">
       <div class="search">${icon("search", 14)}<input id="globalSearch" placeholder="Buscar requisitos, épicos…"></div>
       <button class="iconbtn" id="bellBtn" title="Notificações">${icon("bell")}<span class="dot"></span></button>
-      <button class="avatar" id="avatarBtn">${ATH.user.initials}</button>
+      <button class="avatar" id="avatarBtn">${initialsOf(DB.session.user.name)}</button>
     </div>
   </header>
   <main id="view"></main>`;
@@ -192,7 +200,8 @@ function renderShell() {
     location.hash = t.dataset.view;
     render();
   });
-  $("#projChip").onclick = () => toast("Protótipo: troca de projeto será implementada no app final (US24).", "info");
+  $("#projChip").onclick = () => openSwitchProjectModal();
+  $("#homeBtn").onclick = () => { DB.ui.view = "home"; location.hash = ""; render(); };
   $("#globalSearch").addEventListener("input", e => {
     ATH.ui.search = e.target.value.trim().toLowerCase();
     if (ATH.ui.view === "visao" || ATH.ui.view === "requisitos") render();
@@ -209,14 +218,24 @@ function renderShell() {
   $("#avatarBtn").onclick = e => {
     e.stopPropagation();
     openMenu(e.currentTarget, [
-      { type: "head", name: ATH.user.name, email: ATH.user.email },
+      { type: "head", name: DB.session.user.name, email: DB.session.user.email },
       { type: "sep" },
       { id: "perfil", icon: "info", label: "Perfil", onClick: () => toast("Protótipo: perfil não faz parte deste épico.", "info") },
       { type: "switch", id: "theme", label: "Modo escuro", checked: document.documentElement.dataset.theme === "dark",
         onChange: v => toggleTheme(v) },
-      { id: "sair", label: "Sair", onClick: () => toast("Sessão encerrada (protótipo: permanece logado).", "info") },
+      { id: "sair", label: "Sair", onClick: () => { DB.session.user = null; DB.ui.view = "home"; DB.ui.authView = "login"; render(); toast("Sessão encerrada (JWT invalidado).", "info"); } },
     ], { align: "right" });
   };
+}
+
+function updateShellChrome() {
+  const chip = $("#chipName");
+  if (chip && ATH.project) chip.textContent = ATH.project.name;
+  const av = $("#avatarBtn");
+  if (av && DB.session.user) {
+    const ini = initialsOf(DB.session.user.name);
+    if (av.textContent !== ini) av.textContent = ini;
+  }
 }
 
 function toggleTheme(dark) {
@@ -226,6 +245,10 @@ function toggleTheme(dark) {
 // ---------- dispatcher ----------
 function render() {
   closeMenu();
+  if (!DB.session.user) { renderAuth(); return; }
+  if (DB.ui.view === "home") { renderHome(); return; }
+  // contexto de projeto — shell persiste entre renders (mantém foco da busca)
+  if (!$("#mainTabs")) renderShell(); else updateShellChrome();
   $$("#mainTabs .tab").forEach(t => t.classList.toggle("active", t.dataset.view === ATH.ui.view));
   // Substitui o #view por um clone vazio: remove listeners antigos e evita
   // handlers duplicados a cada render (cloneNode não copia listeners).
@@ -428,8 +451,8 @@ function openNewReqModal(epicoId) {
     const id = nextReqId();
     ATH.requirements.push({
       id, title: t, epicoId: epico, tipo: "História de usuário", situacao: "ATIVO", status: "RASCUNHO",
-      pubVersion: null, updated: "agora", autor: ATH.user.name,
-      origem: { tipo: "Interno", detalhe: `Criado no ATHENA em 26/10/2026 por ${ATH.user.name}` },
+      pubVersion: null, updated: "agora", autor: DB.session.user.name,
+      origem: { tipo: "Interno", detalhe: `Criado no ATHENA em 26/10/2026 por ${DB.session.user.name}` },
       conteudo: template ? TEMPLATE_US : `<p>Descreva o requisito aqui…</p>`,
       criterios: [],
     });
@@ -984,16 +1007,11 @@ function settingsMembrosHTML() {
 }
 
 // ============================================================
-// BOOT — deep-linking opcional via hash: #visao | #requisitos | #mapa | #editor/US-XXX
+// BOOT — deep-links (#visao | #requisitos | #mapa | #editor/US-XXX)
+// ficam pendentes até o login (a sessão é em memória)
 // ============================================================
 (function bootFromHash() {
   const h = location.hash.replace("#", "");
-  if (h.startsWith("editor/")) {
-    const id = h.split("/")[1];
-    if (reqById(id)) { ATH.ui.currentReq = id; ATH.ui.prevView = "visao"; ATH.ui.view = "editor"; }
-  } else if (["visao", "requisitos", "mapa"].includes(h)) {
-    ATH.ui.view = h;
-  }
+  if (h.startsWith("editor/") || ["visao", "requisitos", "mapa"].includes(h)) DB.pendingHash = h;
 })();
-renderShell();
 render();

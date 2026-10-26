@@ -1,35 +1,123 @@
 // ============================================================
 // ATHENA — dados do protótipo (mock em memória)
+// Estrutura: DB (usuários, sessão, workspaces e projetos)
+// ATH = contexto do projeto ativo (carregado por loadProject)
 // ============================================================
-window.ATH = {
-  seq: { req: 30, epico: 6, rel: 10 },
-
-  project: { name: "Plataforma ATHENA", code: "ATH" },
-  user: { name: "Ana Clara", email: "ana@athena.dev", role: "Editor", initials: "AC" },
-
-  ui: {
-    view: "visao",            // visao | requisitos | mapa | editor
-    prevView: "visao",
-    currentReq: null,          // id da US aberta no editor
-    search: "",
-    filters: {
-      ativo: true, cancelado: false,
-      estado: "TODOS", pub: "TODOS", epico: "TODOS",
-    },
-    settingsTab: "pastas",
-    editorDrawer: false,
-  },
-
-  epicos: [
-    { id: "E1", name: "Autenticação e Conta",   open: true,  x: 140, y: 120 },
-    { id: "E2", name: "Organização de projetos", open: false, x: 500, y: 120 },
-    { id: "E3", name: "Editor de Requisitos",   open: false, x: 500, y: 470 },
-    { id: "E4", name: "Rastreabilidade",        open: true,  x: 140, y: 560 },
-    { id: "E5", name: "Revisão e Publicação",   open: false, x: 900, y: 120 },
-    { id: "E6", name: "Integrações",            open: false, x: 900, y: 500 },
+window.DB = {
+  users: [
+    { name: "Ana Clara", email: "anagomes@athena.dev", password: "Athena@2026" },
   ],
+  session: { user: null },
+  ui: {
+    view: "home",        // home | visao | requisitos | mapa | editor
+    authView: "login",   // login | signup | recover | reset
+    homeTab: "projetos", // projetos | arquivados
+    homeWs: "W1",
+    wsSearch: "", projSearch: "",
+    tpWs: null,          // workspace selecionado no modal Trocar projeto
+    focusId: null,       // restaura foco após re-render (buscas)
+  },
+  pendingHash: null,     // deep-link guardado até o login
+  devCode: null,         // código de recuperação "enviado" (protótipo)
 
-  requirements: [
+  workspaces: [
+    {
+      id: "W1", name: "UFLA — Sistemas Distribuídos",
+      projects: [
+        {
+          id: "P1", name: "Plataforma ATHENA", desc: "Gestão, rastreabilidade e revisão de requisitos",
+          archived: false,
+          data: {
+            project: { name: "Plataforma ATHENA", code: "ATH", created: "05/10/2026" },
+            seq: { req: 30, epico: 6, rel: 10 },
+            epicos: [
+              { id: "E1", name: "Autenticação e Conta",   open: true,  x: 140, y: 120 },
+              { id: "E2", name: "Organização de projetos", open: false, x: 500, y: 120 },
+              { id: "E3", name: "Editor de Requisitos",   open: false, x: 500, y: 470 },
+              { id: "E4", name: "Rastreabilidade",        open: true,  x: 140, y: 560 },
+              { id: "E5", name: "Revisão e Publicação",   open: false, x: 900, y: 120 },
+              { id: "E6", name: "Integrações",            open: false, x: 900, y: 500 },
+            ],
+            requirements: [ /* preenchido abaixo */ ],
+            relations: [
+              { id: "R1",  type: "DEPENDE_DE",    from: "US-001", to: "US-002", autor: "Fernando",  just: "O login pressupõe conta criada." },
+              { id: "R2",  type: "RELACIONADO_A", from: "US-001", to: "US-003", autor: "Fernando",  just: "Fluxos de autenticação compartilham a política de sessão." },
+              { id: "R3",  type: "DEPENDE_DE",    from: "US-005", to: "US-004", autor: "José Vítor", just: "Projetos existem dentro de workspaces." },
+              { id: "R4",  type: "DEPENDE_DE",    from: "US-010", to: "US-009", autor: "Ana Clara", just: "Critérios estruturados dependem do editor." },
+              { id: "R5",  type: "RELACIONADO_A", from: "US-016", to: "US-017", autor: "Fernando",  just: "Criação e visualização de relações." },
+              { id: "R6",  type: "DEPENDE_DE",    from: "US-016", to: "US-009", autor: "Fernando",  just: "Relações referenciam requisitos criados no editor." },
+              { id: "R7",  type: "DEPENDE_DE",    from: "US-028", to: "US-009", autor: "José Vítor", just: "A revisão avalia snapshots do editor." },
+              { id: "R8",  type: "DEPENDE_DE",    from: "US-030", to: "US-028", autor: "Fernando",  just: "Baselines agrupam versões publicadas após revisão." },
+              { id: "R9",  type: "BLOQUEIA",      from: "US-019", to: "US-022", autor: "José Vítor", just: "Vincular tarefas exige conexão configurada." },
+              { id: "R10", type: "RELACIONADO_A", from: "US-023", to: "US-001", autor: "Fernando",  just: "Alternativa de autenticação, cancelada." },
+            ],
+          },
+        },
+        {
+          id: "P2", name: "Portal do Parceiro", desc: "Área logada para lojistas consultarem vendas",
+          archived: true,
+          data: {
+            project: { name: "Portal do Parceiro", code: "PAR", created: "12/08/2026" },
+            seq: { req: 3, epico: 2, rel: 1 },
+            epicos: [
+              { id: "E1", name: "Onboarding",  open: true,  x: 130, y: 120 },
+              { id: "E2", name: "Relatórios",  open: false, x: 480, y: 120 },
+            ],
+            requirements: [
+              { id: "US-001", title: "Cadastro de lojista", epicoId: "E1", tipo: "História de usuário",
+                situacao: "ATIVO", status: "PUBLICADA", pubVersion: 1, updated: "há 2 semanas", autor: "Ana Clara",
+                origem: { tipo: "Interno", detalhe: "Criado no ATHENA em 12/08/2026 por Ana Clara" },
+                conteudo: `<h2>Especificação</h2><p>Eu, como <strong>lojista</strong>, quero <strong>criar conta com CNPJ e e-mail</strong>, para <strong>acompanhar minhas vendas</strong>.</p>`,
+                criterios: [] },
+              { id: "US-002", title: "Dashboard de vendas", epicoId: "E1", tipo: "História de usuário",
+                situacao: "ATIVO", status: "RASCUNHO", pubVersion: null, updated: "há 5 dias", autor: "Ana Clara",
+                origem: { tipo: "Interno", detalhe: "Criado no ATHENA em 15/08/2026 por Ana Clara" },
+                conteudo: `<h2>Especificação</h2><p>Eu, como <strong>lojista</strong>, quero <strong>visualizar o resumo diário de vendas</strong>, para <strong>acompanhar o faturamento</strong>.</p>`,
+                criterios: [] },
+              { id: "US-003", title: "Exportar relatórios em CSV", epicoId: "E2", tipo: "História de usuário",
+                situacao: "ATIVO", status: "AGUARDANDO_REVISAO", pubVersion: null, updated: "há 1 dia", autor: "Ana Clara",
+                origem: { tipo: "Interno", detalhe: "Criado no ATHENA em 20/08/2026 por Ana Clara" },
+                conteudo: `<h2>Especificação</h2><p>Eu, como <strong>lojista</strong>, quero <strong>exportar relatórios em CSV</strong>, para <strong>analisar fora do portal</strong>.</p>`,
+                criterios: [] },
+            ],
+            relations: [
+              { id: "R1", type: "DEPENDE_DE", from: "US-002", to: "US-001", autor: "Ana Clara", just: "O dashboard exige lojista cadastrado." },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      id: "W2", name: "InfinitePay — Engenharia",
+      projects: [
+        {
+          id: "P3", name: "App Mobile", desc: "Checkout one-click no app",
+          archived: false,
+          data: {
+            project: { name: "App Mobile", code: "APP", created: "02/09/2026" },
+            seq: { req: 1, epico: 0, rel: 0 },
+            epicos: [
+              { id: "E1", name: "Checkout", open: true, x: 140, y: 120 },
+            ],
+            requirements: [
+              { id: "US-001", title: "Checkout em 1 clique", epicoId: "E1", tipo: "História de usuário",
+                situacao: "ATIVO", status: "RASCUNHO", pubVersion: null, updated: "há 3 dias", autor: "Ana Clara",
+                origem: { tipo: "Interno", detalhe: "Criado no ATHENA em 02/09/2026 por Ana Clara" },
+                conteudo: `<h2>Especificação</h2><p>Eu, como <strong>cliente</strong>, quero <strong>finalizar compras com um toque</strong>, para <strong>reduzir o atrito no pagamento</strong>.</p>`,
+                criterios: [] },
+            ],
+            relations: [],
+          },
+        },
+      ],
+    },
+  ],
+};
+
+// ---------- Requisitos do projeto ATHENA (P1) ----------
+(function seedAthena() {
+  const d = DB.workspaces[0].projects[0].data;
+  d.requirements = [
     {
       id: "US-001", title: "Acesso à conta (Login)", epicoId: "E1",
       tipo: "História de usuário", situacao: "ATIVO", status: "AGUARDANDO_REVISAO",
@@ -209,20 +297,18 @@ window.ATH = {
         <p>Sem integrações configuradas, o dropdown “Destino” fica inativo com a mensagem “Nenhum destino autorizado”.</p>`,
       criterios: [],
     },
-  ],
+  ];
+})();
 
-  relations: [
-    { id: "R1",  type: "DEPENDE_DE",    from: "US-001", to: "US-002", autor: "Fernando",  just: "O login pressupõe conta criada." },
-    { id: "R2",  type: "RELACIONADO_A", from: "US-001", to: "US-003", autor: "Fernando",  just: "Fluxos de autenticação compartilham a política de sessão." },
-    { id: "R3",  type: "DEPENDE_DE",    from: "US-005", to: "US-004", autor: "José Vítor", just: "Projetos existem dentro de workspaces." },
-    { id: "R4",  type: "DEPENDE_DE",    from: "US-010", to: "US-009", autor: "Ana Clara", just: "Critérios estruturados dependem do editor." },
-    { id: "R5",  type: "RELACIONADO_A", from: "US-016", to: "US-017", autor: "Fernando",  just: "Criação e visualização de relações." },
-    { id: "R6",  type: "DEPENDE_DE",    from: "US-016", to: "US-009", autor: "Fernando",  just: "Relações referenciam requisitos criados no editor." },
-    { id: "R7",  type: "DEPENDE_DE",    from: "US-028", to: "US-009", autor: "José Vítor", just: "A revisão avalia snapshots do editor." },
-    { id: "R8",  type: "DEPENDE_DE",    from: "US-030", to: "US-028", autor: "Fernando",  just: "Baselines agrupam versões publicadas após revisão." },
-    { id: "R9",  type: "BLOQUEIA",      from: "US-019", to: "US-022", autor: "José Vítor", just: "Vincular tarefas exige conexão configurada." },
-    { id: "R10", type: "RELACIONADO_A", from: "US-023", to: "US-001", autor: "Fernando",  just: "Alternativa de autenticação, cancelada." },
-  ],
+// ---------- Contexto do projeto ativo (preenchido por loadProject) ----------
+window.ATH = {
+  projectId: null, workspaceId: null,
+  project: null, epicos: [], requirements: [], relations: [], seq: { req: 0, epico: 0, rel: 0 },
+  ui: {
+    view: "visao", currentReq: null, prevView: "visao", search: "",
+    filters: { ativo: true, cancelado: false, estado: "TODOS", pub: "TODOS", epico: "TODOS" },
+    settingsTab: "pastas", editorDrawer: false,
+  },
 };
 
 // ---------- Constantes de estado ----------

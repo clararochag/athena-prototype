@@ -733,3 +733,172 @@ svg.map-edges { position: absolute; top: 0; left: 0; overflow: visible; pointer-
   .edrawer { position: absolute; right: 0; top: 0; bottom: 0; z-index: 20; box-shadow: var(--shadow-lg); }
   .mdrawer { width: 300px; }
 }
+
+/* ============================================================
+   AUTH (US01–US03) — Criar conta, Login, Recuperar, Nova senha
+   ============================================================ */
+.auth-wrap {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(700px 420px at 20% -10%, var(--accent-soft), transparent 60%),
+    radial-gradient(600px 380px at 90% 110%, color-mix(in srgb, var(--blue) 9%, transparent), transparent 60%),
+    var(--bg);
+}
+.auth-card {
+  width: 100%; max-width: 430px;
+  background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 18px; box-shadow: var(--shadow-lg);
+  padding: 34px 38px 30px;
+  animation: slideUp .25s cubic-bezier(.2,.8,.25,1);
+}
+.auth-brand { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 22px; }
+.auth-brand .brand-name { font-size: 26px; }
+.auth-brand .auth-tag { font-size: 12px; color: var(--faint); letter-spacing: .2px; }
+.auth-title { font-size: 19px; font-weight: 700; letter-spacing: -.2px; }
+.auth-sub { color: var(--muted); font-size: 13px; margin: 6px 0 18px; line-height: 1.5; }
+.auth-alt { text-align: center; margin-top: 18px; font-size: 13px; color: var(--muted); }
+.auth-alt a, .auth-link { color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: none; }
+.auth-alt a:hover, .auth-link:hover { text-decoration: underline; }
+.auth-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 14px; }
+.auth-error { background: color-mix(in srgb, var(--red) 10%, transparent); border: 1px solid color-mix(in srgb, var(--red) 28%, transparent); padding: 9px 12px; border-radius: 9px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.auth-error svg.ic { color: var(--red); flex: none; }
+.auth-success { background: color-mix(in srgb, var(--green) 10%, transparent); border: 1px solid color-mix(in srgb, var(--green) 28%, transparent); color: var(--text); padding: 10px 13px; border-radius: 9px; font-size: 12.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.auth-success svg.ic { color: var(--green); flex: none; }
+.auth-links-row { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; font-size: 12.5px; }
+.auth-footnote { margin-top: 22px; font-size: 12px; color: var(--faint); }
+.demo-hint {
+  margin-top: 16px; padding: 10px 12px; border-radius: 10px;
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--muted); font-size: 12px; line-height: 1.5;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.demo-hint svg.ic { color: var(--accent); flex: none; margin-top: 1px; }
+.demo-hint b { color: var(--text); }
+
+/* input com ícone */
+.input-icon { position: relative; display: flex; align-items: center; }
+.input-icon svg.ic { position: absolute; left: 11px; color: var(--faint); pointer-events: none; }
+.input-icon .input { padding-left: 34px; }
+.input-icon.pw-wrap .input { padding-right: 40px; }
+.eye { position: absolute; right: 6px; width: 28px; height: 28px; border-radius: 7px; color: var(--faint); display: flex; align-items: center; justify-content: center; }
+.eye:hover { color: var(--text); background: var(--surface-2); }
+
+/* checkbox inline */
+.check-line { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin: 4px 0 12px; cursor: pointer; }
+.check-line input { accent-color: var(--accent); width: 15px; height: 15px; }
+.check-line.terms { align-items: flex-start; line-height: 1.5; }
+.check-line.terms input { margin-top: 2px; }
+.check-line a { color: var(--accent); }
+
+/* checklist de senha (US01) */
+.pw-check { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 10px; }
+.pw-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--faint); transition: color .2s; }
+.pw-item svg.ic { color: var(--faint); transition: color .2s; }
+.pw-item.ok { color: var(--green); font-weight: 600; }
+.pw-item.ok svg.ic { color: var(--green); }
+
+/* código de 6 dígitos (US03-B) */
+.code-inputs { display: flex; gap: 8px; justify-content: center; margin: 6px 0 20px; }
+.code-box {
+  width: 46px; height: 52px; text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 21px; font-weight: 700;
+  background: var(--bg-soft); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.code-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ============================================================
+   HOME — Workspaces e Projetos (US04–US06)
+   ============================================================ */
+.home { display: grid; grid-template-columns: 264px 1fr; height: 100vh; }
+.wsbar {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px 12px;
+  background: var(--bg-soft); border-right: 1px solid var(--border);
+}
+.wsbar-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 6px; }
+.brand-name.sm { font-size: 18px; }
+.wsbar-head .avatar { width: 30px; height: 30px; cursor: pointer; border: none; font-size: 11px; }
+.search.sm { width: 100%; padding: 5px 9px; }
+.ws-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.ws-item {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; border-radius: 9px;
+  font-size: 13px; font-weight: 500; color: var(--muted); text-align: left;
+  transition: background .12s, color .12s;
+}
+.ws-item svg.ic { color: var(--faint); flex: none; }
+.ws-item:hover { background: var(--surface-2); color: var(--text); }
+.ws-item.active { background: var(--surface-3); color: var(--text); font-weight: 600; }
+.ws-item.active svg.ic, .ws-item.active .ws-count { color: var(--accent); }
+.ws-item .ws-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-count { font-size: 11px; font-weight: 700; color: var(--faint); background: var(--surface-2); border: 1px solid var(--border); padding: 1px 7px; border-radius: 99px; flex: none; }
+.ws-none { padding: 18px 10px; text-align: center; color: var(--faint); font-size: 12.5px; }
+
+.home-main { overflow-y: auto; padding: 30px 40px 60px; min-width: 0; }
+.home-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+.ws-title { font-size: 22px; font-weight: 700; letter-spacing: -.2px; }
+.home-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+.htab {
+  padding: 9px 14px; font-size: 13.5px; font-weight: 600; color: var(--muted);
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+}
+.htab:hover { color: var(--text); }
+.htab.active { color: var(--text); border-color: var(--accent); }
+.home-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+.home-toolbar .search { flex: 1; max-width: 420px; }
+.arch-desc { padding: 12px 16px; margin-bottom: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; color: var(--muted); font-size: 13px; }
+.arch-desc b { color: var(--text); }
+
+.proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.proj-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 13px;
+  padding: 16px 18px; display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.proj-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow); transform: translateY(-2px); }
+.proj-card.archived { border-style: dashed; background: color-mix(in srgb, var(--surface) 60%, transparent); }
+.proj-top { display: flex; align-items: center; gap: 10px; }
+.proj-top svg.ic { color: var(--accent); }
+.proj-top .proj-name { flex: 1; font-size: 15px; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.proj-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; min-height: 18px; }
+.proj-meta { font-size: 12px; color: var(--faint); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.proj-actions { display: flex; gap: 8px; margin-top: 2px; }
+
+/* ---------- US24: modal Trocar projeto ---------- */
+.tp-search { margin-bottom: 14px; }
+.tp-cols { display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; }
+.tp-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--faint); padding: 0 6px 8px; }
+.tp-list {
+  border: 1px solid var(--border); border-radius: 11px; background: var(--bg-soft);
+  max-height: 320px; overflow-y: auto; padding: 5px;
+}
+.tp-item {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 9px 10px; border-radius: 8px; font-size: 13px; color: var(--muted); text-align: left;
+  transition: background .12s, color .12s;
+}
+.tp-item:hover { background: var(--surface-2); color: var(--text); }
+.tp-item.selected { background: var(--accent-soft); color: var(--text); font-weight: 600; }
+.tp-item svg.ic { color: var(--faint); flex: none; }
+.tp-item.selected > svg.ic { color: var(--accent); }
+.tp-item .tp-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tp-check { width: 14px; height: 14px; color: var(--green); display: inline-flex; flex: none; }
+.tp-flag {
+  font-size: 10.5px; font-weight: 700; color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--green) 30%, transparent);
+  padding: 2px 8px; border-radius: 99px; flex: none;
+}
+
+@media (max-width: 900px) {
+  .home { grid-template-columns: 1fr; }
+  .wsbar { flex-direction: row; align-items: center; overflow-x: auto; }
+  .ws-list { flex-direction: row; }
+  .tp-cols { grid-template-columns: 1fr; }
+}

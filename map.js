@@ -523,7 +523,7 @@ function openConnectModal(fromId) {
       (r.from === fromId && r.to === target) || (r.from === target && r.to === fromId));
     if (dup) return showError("Já existe uma relação entre essas duas US (leituras inversas representam a mesma aresta).");
     const id = "R" + (++ATH.seq.rel);
-    ATH.relations.push({ id, type: semType, from: fromId, to: target, autor: ATH.user.name, just: "Criada no mapa." });
+    ATH.relations.push({ id, type: semType, from: fromId, to: target, autor: DB.session.user.name, just: "Criada no mapa." });
     toast(`Relação criada: ${fromId} ${semType} ${target}`, "success");
     close();
     renderMapNodes(); drawEdges(); renderMapDrawer();
